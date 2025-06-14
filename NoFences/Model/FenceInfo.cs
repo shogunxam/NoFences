@@ -34,7 +34,7 @@ namespace NoFences.Model
         /// <summary>
         /// Gets or sets the logical window title height.
         /// </summary>
-        public int TitleHeight { get; set; } = 35;
+        public int TitleHeight { get; set; } = 25;
 
         public List<string> Files { get; set; } = new List<string>();
 

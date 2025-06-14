@@ -15,10 +15,12 @@ namespace NoFences
         private int logicalTitleHeight;
         private int titleHeight;
         private const int titleOffset = 3;
-        private const int itemWidth = 75;
+        private const int itemWidth = 90;
         private const int itemHeight = 32 + itemPadding + textHeight;
-        private const int textHeight = 35;
-        private const int itemPadding = 15;
+        //private const int textHeight = 35;
+        //private const int itemPadding = 15;
+        private const int textHeight = 40;
+        private const int itemPadding = 10;
         private const float shadowDist = 1.5f;
 
         private readonly FenceInfo fenceInfo;
