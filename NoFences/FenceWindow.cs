@@ -83,6 +83,7 @@ namespace NoFences
             prevHeight = Height;
             lockedToolStripMenuItem.Checked = fenceInfo.Locked;
             minifyToolStripMenuItem.Checked = fenceInfo.CanMinify;
+            this.Resize += FenceWindow_Resize;
             Minify();
         }
 
@@ -196,6 +197,8 @@ namespace NoFences
         {
             throttledResize.Run(() =>
             {
+                if (fenceInfo == null)
+                    return;
                 fenceInfo.Width = Width;
                 fenceInfo.Height = isMinified ? prevHeight : Height;
                 Save();
