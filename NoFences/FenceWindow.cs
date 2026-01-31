@@ -470,11 +470,38 @@ namespace NoFences
 
             if (hoveringItem != null && !ModifierKeys.HasFlag(Keys.Shift))
             {
-                shellContextMenu.ShowContextMenu(new[] { new FileInfo(hoveringItem) }, MousePosition);
+                shellContextMenu.ShowContextMenuWithCustomItem(
+                    new[] { new FileInfo(hoveringItem) }, 
+                    MousePosition,
+                    OnRemoveIconFromFence);
             }
             else
             {
                 appContextMenu.Show(this, e.Location);
+            }
+        }
+
+        private void OnRemoveIconFromFence(string itemPath)
+        {
+            var confirmResult = MessageBox.Show(
+                this,
+                $"Remove '{Path.GetFileName(itemPath)}' from this fence?",
+                "Confirm Removal",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirmResult == DialogResult.Yes)
+            {
+                fenceInfo.Files.Remove(itemPath);
+                
+                if (selectedItem == itemPath)
+                    selectedItem = null;
+                
+                if (hoveringItem == itemPath)
+                    hoveringItem = null;
+
+                Save();
+                Invalidate();
             }
         }
 

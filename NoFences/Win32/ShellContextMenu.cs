@@ -596,6 +596,9 @@ namespace Peter
         [DllImport("user32", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern int GetMenuDefaultItem(IntPtr hMenu, bool fByPos, uint gmdiFlags);
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern bool InsertMenuItem(IntPtr hMenu, uint uItem, bool fByPosition, ref MENUITEMINFO lpmii);
+
         #endregion
 
         #region Shell GUIDs
@@ -1387,6 +1390,105 @@ namespace Peter
                 IntPtr plResult);
         }
         #endregion
+
+        #region Methods Aggiuntivi
+        /// <summary>
+        /// Shows the context menu with a custom item
+        /// </summary>
+        /// <param name="files">FileInfos (should all be in the same directory)</param>
+        /// <param name="pointScreen">Where to show the menu</param>
+        /// <param name="onRemoveItem">Action to execute when removing the item</param>
+        public void ShowContextMenuWithCustomItem(FileInfo[] files, Point pointScreen, Action<string> onRemoveItem)
+        {
+            ReleaseAll();
+            _arrPIDLs = GetPIDLs(files);
+            
+            if (_arrPIDLs == null || _arrPIDLs.Length == 0)
+            {
+                ReleaseAll();
+                return;
+            }
+
+            IntPtr menuHandle = IntPtr.Zero;
+            IntPtr contextMenuPtr = IntPtr.Zero;
+            IntPtr contextMenu2Ptr = IntPtr.Zero;
+            IntPtr contextMenu3Ptr = IntPtr.Zero;
+
+            try
+            {
+                if (!GetContextMenuInterfaces(_oParentFolder, _arrPIDLs, out contextMenuPtr))
+                {
+                    ReleaseAll();
+                    return;
+                }
+
+                menuHandle = CreatePopupMenu();
+
+                int queryResult = _oContextMenu.QueryContextMenu(
+                    menuHandle,
+                    0,
+                    CMD_FIRST,
+                    CMD_LAST,
+                    CMF.EXPLORE | CMF.NORMAL |
+                    ((Control.ModifierKeys & Keys.Shift) != 0 ? CMF.EXTENDEDVERBS : 0));
+
+                // Insert separator and custom menu item
+                MENUITEMINFO separatorInfo = new MENUITEMINFO(string.Empty);
+                separatorInfo.fMask = MIIM.FTYPE;
+                separatorInfo.fType = MFT.SEPARATOR;
+                InsertMenuItem(menuHandle, 0, true, ref separatorInfo);
+
+                const uint CUSTOM_REMOVE_CMD = CMD_LAST + 100;
+                MENUITEMINFO customItemInfo = new MENUITEMINFO("Remove from Fence");
+                customItemInfo.fMask = MIIM.ID | MIIM.STRING | MIIM.STATE;
+                customItemInfo.wID = CUSTOM_REMOVE_CMD;
+                customItemInfo.fState = MFS.ENABLED;
+                InsertMenuItem(menuHandle, 0, true, ref customItemInfo);
+
+                Marshal.QueryInterface(contextMenuPtr, ref IID_IContextMenu2, out contextMenu2Ptr);
+                Marshal.QueryInterface(contextMenuPtr, ref IID_IContextMenu3, out contextMenu3Ptr);
+
+                _oContextMenu2 = (IContextMenu2)Marshal.GetTypedObjectForIUnknown(contextMenu2Ptr, typeof(IContextMenu2));
+                _oContextMenu3 = (IContextMenu3)Marshal.GetTypedObjectForIUnknown(contextMenu3Ptr, typeof(IContextMenu3));
+
+                uint selectedCmd = TrackPopupMenuEx(
+                    menuHandle,
+                    TPM.RETURNCMD,
+                    pointScreen.X,
+                    pointScreen.Y,
+                    this.Handle,
+                    IntPtr.Zero);
+
+                DestroyMenu(menuHandle);
+                menuHandle = IntPtr.Zero;
+
+                if (selectedCmd == CUSTOM_REMOVE_CMD)
+                {
+                    onRemoveItem?.Invoke(files[0].FullName);
+                }
+                else if (selectedCmd >= CMD_FIRST && selectedCmd <= CMD_LAST)
+                {
+                    InvokeCommand(_oContextMenu, selectedCmd, _strParentFolder, pointScreen);
+                }
+            }
+            finally
+            {
+                if (menuHandle != IntPtr.Zero)
+                    DestroyMenu(menuHandle);
+
+                if (contextMenuPtr != IntPtr.Zero)
+                    Marshal.Release(contextMenuPtr);
+
+                if (contextMenu2Ptr != IntPtr.Zero)
+                    Marshal.Release(contextMenu2Ptr);
+
+                if (contextMenu3Ptr != IntPtr.Zero)
+                    Marshal.Release(contextMenu3Ptr);
+
+                ReleaseAll();
+            }
+        }
+        #endregion
     }
 
     #region ShellContextMenuException
@@ -1560,10 +1662,11 @@ namespace Peter
         /// <returns>The unsigned integer for the High Word</returns>
         public static uint HiWord(IntPtr ptr)
         {
-            if (((uint)ptr & 0x80000000) == 0x80000000)
-                return ((uint)ptr >> 16);
+            uint low32 = unchecked((uint)(long)ptr);
+            if ((low32 & 0x80000000) == 0x80000000)
+                return (low32 >> 16);
             else
-                return ((uint)ptr >> 16) & 0xffff;
+                return (low32 >> 16) & 0xffff;
         }
 
         /// <summary>
@@ -1573,7 +1676,7 @@ namespace Peter
         /// <returns>The unsigned integer for the Low Word</returns>
         public static uint LoWord(IntPtr ptr)
         {
-            return (uint)ptr & 0xffff;
+            return unchecked((uint)(long)ptr) & 0xffff;
         }
 
         #endregion
