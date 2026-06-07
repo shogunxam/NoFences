@@ -31,6 +31,8 @@ namespace NoFences.Model
 
         public bool CanMinify { get; set; }
 
+        public bool Sorted { get; set; }
+
         /// <summary>
         /// Gets or sets the logical window title height.
         /// </summary>

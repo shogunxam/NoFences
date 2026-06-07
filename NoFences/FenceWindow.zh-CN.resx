@@ -133,7 +133,10 @@
   <data name="minifyToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>180, 22</value>
   </data>
-  <data name="minifyToolStripMenuItem.Text" xml:space="preserve">
+	<data name="sortToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+		<value>180, 22</value>
+	</data>
+	<data name="minifyToolStripMenuItem.Text" xml:space="preserve">
     <value>收起窗口</value>
   </data>
   <data name="renameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">

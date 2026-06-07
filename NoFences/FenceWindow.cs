@@ -3,6 +3,7 @@ using NoFences.Util;
 using NoFences.Win32;
 using Peter;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -83,6 +84,7 @@ namespace NoFences
             prevHeight = Height;
             lockedToolStripMenuItem.Checked = fenceInfo.Locked;
             minifyToolStripMenuItem.Checked = fenceInfo.CanMinify;
+            sortToolStripMenuItem.Checked = fenceInfo.Sorted;
             this.Resize += FenceWindow_Resize;
             Minify();
         }
@@ -251,6 +253,13 @@ namespace NoFences
 
         }
 
+        private void sortToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fenceInfo.Sorted = sortToolStripMenuItem.Checked;
+            Save();
+            Refresh();
+        }
+
         private void FenceWindow_Click(object sender, EventArgs e)
         {
             shouldUpdateSelection = true;
@@ -281,7 +290,12 @@ namespace NoFences
             var y = itemPadding;
             scrollHeight = 0;
             e.Graphics.Clip = new Region(new Rectangle(0, titleHeight, Width, Height - titleHeight));
-            foreach (var file in fenceInfo.Files)
+            List<string> filesToRender = new List<string>(fenceInfo.Files);
+            if (fenceInfo.Sorted)
+            {
+                filesToRender.Sort(StringComparer.InvariantCultureIgnoreCase);
+            }
+            foreach (var file in filesToRender)
             {
                 var entry = FenceEntry.FromPath(file);
                 if (entry == null)

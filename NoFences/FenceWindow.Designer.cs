@@ -34,6 +34,7 @@
             this.deleteItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lockedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minifyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.titleSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -49,6 +50,7 @@
             this.deleteItemToolStripMenuItem,
             this.lockedToolStripMenuItem,
             this.minifyToolStripMenuItem,
+            this.sortToolStripMenuItem,
             this.renameToolStripMenuItem,
             this.titleSizeToolStripMenuItem,
             this.toolStripSeparator1,
@@ -77,6 +79,15 @@
             this.minifyToolStripMenuItem.CheckOnClick = true;
             this.minifyToolStripMenuItem.Name = "minifyToolStripMenuItem";
             this.minifyToolStripMenuItem.Click += new System.EventHandler(this.minifyToolStripMenuItem_Click);
+
+            // 
+            // sortToolStripMenuItem
+            // 
+            resources.ApplyResources(this.sortToolStripMenuItem, "sortToolStripMenuItem");
+            this.sortToolStripMenuItem.CheckOnClick = true;
+            this.sortToolStripMenuItem.Name = "sortToolStripMenuItem";
+            this.sortToolStripMenuItem.Click += new System.EventHandler(this.sortToolStripMenuItem_Click);
+
             // 
             // renameToolStripMenuItem
             // 
@@ -144,6 +155,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem minifyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sortToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteItemToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newFenceToolStripMenuItem;
