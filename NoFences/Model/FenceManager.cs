@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace NoFences.Model
@@ -27,6 +28,26 @@ namespace NoFences.Model
                 var reader = new StreamReader(metaFile);
                 var fence = serializer.Deserialize(reader) as FenceInfo;
                 reader.Close();
+
+                // Remove files that no longer exist
+                if (fence != null && fence.Files != null)
+                {
+                    var originalCount = fence.Files.Count;
+                    var filesToRemove = fence.Files
+                        .Where(file => !File.Exists(file) && !Directory.Exists(file))
+                        .ToList();
+
+                    foreach (var file in filesToRemove)
+                    {
+                        fence.Files.Remove(file);
+                    }
+
+                    // Save updated metadata if files were removed
+                    if (filesToRemove.Count > 0)
+                    {
+                        UpdateFence(fence);
+                    }
+                }
 
                 new FenceWindow(fence).Show();
             }
